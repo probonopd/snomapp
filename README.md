@@ -8,8 +8,8 @@ IP phones are ideal for controlling home automation devices because they are alw
 
 | Device family | Protocol | Discovery |
 |---|---|---|
-| [WLED](https://kno.wled.ge/) LED controllers | JSON REST API | mDNS `_wled._tcp` · MQTT HA-discovery |
-| [Tasmota](https://tasmota.github.io/) (Sonoff & others) | HTTP command API | mDNS `_http._tcp` / `_tasmota._tcp` · MQTT native + HA-discovery |
+| [WLED](https://kno.wled.ge/) LED controllers | MQTT or JSON REST API| mDNS `_wled._tcp` · MQTT HA-discovery |
+| [Tasmota](https://tasmota.github.io/) (Sonoff & others) | MQTT or HTTP command API | mDNS `_http._tcp` / `_tasmota._tcp` · MQTT native + HA-discovery |
 
 ## Building
 
