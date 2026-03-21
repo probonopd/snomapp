@@ -33,6 +33,11 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/scene/", h.SceneAction)
 	mux.HandleFunc("/device/", h.DeviceControl)
 	mux.HandleFunc("/refresh", h.Refresh)
+	// Radio / TuneIn
+	mux.HandleFunc("/radio", h.RadioMenu)
+	mux.HandleFunc("/radio/browse", h.RadioBrowse)
+	mux.HandleFunc("/radio/search", h.RadioSearch)
+	mux.HandleFunc("/radio/tune", h.RadioTune)
 }
 
 // ---- helpers ---------------------------------------------------------------
@@ -167,6 +172,7 @@ func (h *Handler) MainMenu(w http.ResponseWriter, r *http.Request) {
 		MenuItems: []MenuItem{
 			{Name: fmt.Sprintf("All Devices (%d)", total), URL: navURL(b + "/devices")},
 			{Name: "Scenes", URL: navURL(b + "/scenes")},
+			{Name: "Radio", URL: navURL(b + "/radio")},
 		},
 		SoftKeys: oneLevelBackKeys(b + "/"),
 	}
