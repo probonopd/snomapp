@@ -86,3 +86,16 @@ snomapp/
     └── handlers.go      # HTTP handlers that render the XML pages
 ```
 
+## Install on server
+
+E.g., for an ARM based server (like Orange Pi Zero), cross-compile with:
+
+```
+env GOOS=linux GOARCH=arm GOARM=7 go build -o snomapp-armv7 . && ls -l snomapp-armv7
+```
+
+On the ARM based server, in `nano /etc/rc.local` add
+
+```
+MQTT_BROKER=tcp://127.0.0.1:1883 /usr/local/bin/snomapp 2>&1 &
+```
