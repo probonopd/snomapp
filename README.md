@@ -2,6 +2,8 @@
 
 Based on the [Snom XML Minibrowser API](https://github.com/Snomio/Documentation/blob/master/docs/xml_minibrowser/index.md), this Go application lets you steer lights and switches in your home directly from the menu of a Snom IP phone.
 
+IP phones are ideal for controlling home automation devices because they are always on, powered, corded, within reach on the desk.
+
 **Supported devices**
 
 | Device family | Protocol | Discovery |
@@ -85,6 +87,32 @@ snomapp/
     ├── xml.go           # Snom XML types (SnomIPPhoneMenu, SnomIPPhoneText, …)
     └── handlers.go      # HTTP handlers that render the XML pages
 ```
+
+## Potential extensions
+
+### Configuration web UI
+
+To be written. Currently it's so simple it's not even needed.
+
+### More intelligent scenes
+
+To be written.
+
+### Autodiscover and integrate with HomeAssistant devices
+
+Support HomeAssistant device autodiscovery schemes not limited to Tasmota and WLED devices (this would not require a HomeAssistant server).
+
+### Show security camera video feeds
+
+Some security cameras, e.g., Tapo, stream rtsp locally but snom phones apparently only support mjpeg. Possibly a translation layer needs to be written.
+
+### Play radio stations
+
+A radio station browser is built in; an interface to steer autodiscovered radio players on the network still needs to be written.
+
+### Integrate with door openers and intercom
+
+E.g., those by Siedle (with some suitable 3rd party hardware).
 
 ## Install on server
 
