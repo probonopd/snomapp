@@ -31,19 +31,24 @@ func (h *Handler) RegisterWebRoutes(mux *http.ServeMux) {
 foundAppDir:
 	fs := http.FileServer(http.Dir(appDir))
 
-	mux.HandleFunc("/app/", func(w http.ResponseWriter, r *http.Request) {
-		// If requesting /app/, serve index.html
-		if r.URL.Path == "/app/" || r.URL.Path == "/app" {
-			r.URL.Path = "/index.html"
-		}
-		// Strip /app/ prefix for file serving
-		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/app/")
-		fs.ServeHTTP(w, r)
-	})
-
-	// JSON API endpoints
+	// JSON API endpoints - register these FIRST so they take precedence
 	mux.HandleFunc("/app/api/devices", h.APIDeviceList)
 	mux.HandleFunc("/app/api/device/", h.APIDeviceDetail)
+
+	// Static files - use StripPrefix to remove /app/ before serving
+	mux.Handle("/app/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Handle root path
+		if r.URL.Path == "/app/" || r.URL.Path == "/app" {
+			r.URL.Path = "/index.html"
+		} else {
+			// Strip /app/ prefix
+			r.URL.Path = strings.TrimPrefix(r.URL.Path, "/app")
+			if r.URL.Path == "" {
+				r.URL.Path = "/index.html"
+			}
+		}
+		fs.ServeHTTP(w, r)
+	}))
 }
 
 // DeviceJSON represents a device in JSON format for the web app.
