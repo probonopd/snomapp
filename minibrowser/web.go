@@ -13,7 +13,7 @@ import (
 
 // RegisterWebRoutes registers the web app routes (static files and JSON API).
 func (h *Handler) RegisterWebRoutes(mux *http.ServeMux) {
-	// Serve static files from /app/ directory relative to executable
+	// Find app directory
 	var appDir string
 
 	// Try executable directory first
@@ -29,26 +29,67 @@ func (h *Handler) RegisterWebRoutes(mux *http.ServeMux) {
 	appDir = "app"
 
 foundAppDir:
-	fs := http.FileServer(http.Dir(appDir))
-
 	// JSON API endpoints - register these FIRST so they take precedence
 	mux.HandleFunc("/app/api/devices", h.APIDeviceList)
 	mux.HandleFunc("/app/api/device/", h.APIDeviceDetail)
 
-	// Static files - use StripPrefix to remove /app/ before serving
-	mux.Handle("/app/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Handle root path
-		if r.URL.Path == "/app/" || r.URL.Path == "/app" {
-			r.URL.Path = "/index.html"
-		} else {
-			// Strip /app/ prefix
-			r.URL.Path = strings.TrimPrefix(r.URL.Path, "/app")
-			if r.URL.Path == "" {
-				r.URL.Path = "/index.html"
+	// Static files handler - serve content directly without FileServer redirects
+	mux.HandleFunc("/app/", func(w http.ResponseWriter, r *http.Request) {
+		// Extract the file path after /app/
+		filePath := strings.TrimPrefix(r.URL.Path, "/app")
+
+		// Default to index.html for root path
+		if filePath == "" || filePath == "/" {
+			filePath = "/index.html"
+		}
+
+		// Build full file path
+		fullPath := filepath.Join(appDir, filepath.Clean(filePath))
+
+		// Security check - prevent directory traversal
+		if !strings.HasPrefix(fullPath, appDir) {
+			http.NotFound(w, r)
+			return
+		}
+
+		// Check if file exists and is a file (not directory)
+		stat, err := os.Stat(fullPath)
+		if err != nil || stat.IsDir() {
+			// For directories, try serving index.html from that directory
+			if err == nil && stat.IsDir() {
+				fullPath = filepath.Join(fullPath, "index.html")
+				stat, err = os.Stat(fullPath)
+			}
+			if err != nil {
+				http.NotFound(w, r)
+				return
 			}
 		}
-		fs.ServeHTTP(w, r)
-	}))
+
+		// Serve the file directly
+		file, err := os.Open(fullPath)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		defer file.Close()
+
+		// Set content type based on file extension
+		ext := filepath.Ext(fullPath)
+		switch ext {
+		case ".html":
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		case ".css":
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		case ".js":
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		case ".json":
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		}
+
+		// Serve the file
+		http.ServeContent(w, r, fullPath, stat.ModTime(), file)
+	})
 }
 
 // DeviceJSON represents a device in JSON format for the web app.
