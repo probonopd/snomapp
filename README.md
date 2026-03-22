@@ -11,25 +11,28 @@ IP phones are ideal for controlling home automation devices because they are alw
 | [WLED](https://kno.wled.ge/) LED controllers | MQTT or JSON REST API| mDNS `_wled._tcp` · MQTT HA-discovery |
 | [Tasmota](https://tasmota.github.io/) (Sonoff & others) | MQTT or HTTP command API | mDNS `_http._tcp` / `_tasmota._tcp` · MQTT native + HA-discovery |
 
-## Building
+## Accessing the App
 
-```bash
-go build -o snomapp .
-```
-
-## Running
-
-```bash
-./snomapp
-```
-
-The server listens on `:8080` by default.  Point the Snom phone's minibrowser to:
-
+### Snom XML Minibrowser
+Point your Snom IP phone's minibrowser to:
 ```
 http://<server-ip>:8080/
 ```
 
-To do that, go to the phone configuration website (e.g., https://192.168.0.45/fkey.htm) (use the IP address of the snom phone) and configure a function key with "Action URL" and e.g., http://192.168.0.200:8080 (use the IP address of the server on which this application is running; TODO: find a way to run this application directly on the phone itself).
+### Mobile Web App (iOS3-style Stack Navigation)
+Open a browser on your iPhone or Android device and navigate to:
+```
+http://<server-ip>:8080/app/
+```
+
+The web app provides an iOS3-style stack-based navigation with:
+- Smooth right-to-left slide animations on navigation
+- Persistent navigation history (restored on page reload)
+- iOS-like back button navigation
+- Full device control (power, brightness, color, dimmer, etc.)
+- Device discovery and real-time status updates
+- Scene execution
+- Radio browsing (TuneIn)
 
 ### Environment variables
 
@@ -69,6 +72,18 @@ To do that, go to the phone configuration website (e.g., https://192.168.0.45/fk
 | `GET /device/<id>/toggle?ch=<N>` | Toggle Tasmota power channel N |
 | `GET /refresh` | Discovery status page |
 
+## Web App API Routes
+
+The web app at `/app/` uses JSON API endpoints:
+
+| Route | Description |
+|---|---|
+| `GET /app/` | Main web app interface |
+| `GET /app/api/devices` | JSON list of all discovered devices |
+| `GET /app/api/device/<id>` | JSON details for a specific device |
+
+All device control actions (power, brightness, color, etc.) use the existing XML routes which work seamlessly with the web app.
+
 ## Project layout
 
 ```
@@ -83,9 +98,14 @@ snomapp/
 ├── discovery/
 │   ├── mdns.go          # mDNS-SD (Bonjour / Avahi) discovery
 │   └── mqtt.go          # MQTT-based discovery
-└── minibrowser/
-    ├── xml.go           # Snom XML types (SnomIPPhoneMenu, SnomIPPhoneText, …)
-    └── handlers.go      # HTTP handlers that render the XML pages
+├── minibrowser/
+│   ├── xml.go           # Snom XML types (SnomIPPhoneMenu, SnomIPPhoneText, …)
+│   ├── handlers.go      # HTTP handlers that render the XML pages
+│   └── web.go           # JSON API endpoints and static file serving for web app
+└── app/
+    ├── index.html       # Web app entry point
+    ├── index.js         # Stack-based navigation controller & device control logic
+    └── index.css        # iOS-style mobile UI
 ```
 
 ## Potential extensions
@@ -113,8 +133,6 @@ A radio station browser is built in; an interface to steer autodiscovered radio 
 ### Integrate with door openers and intercom
 
 E.g., those by Siedle (with some suitable 3rd party hardware).
-
-## Install on server
 
 E.g., for an ARM based server (like Orange Pi Zero), cross-compile with:
 

@@ -51,6 +51,7 @@ func main() {
 	mux := http.NewServeMux()
 	handler := minibrowser.NewHandler(registry)
 	handler.RegisterRoutes(mux)
+	handler.RegisterWebRoutes(mux)
 
 	srv := &http.Server{
 		Addr:         cfg.ListenAddr,

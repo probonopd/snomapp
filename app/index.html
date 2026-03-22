@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Smart Home">
+    <title>Smart Home</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Navigation Header -->
+        <header class="nav-header">
+            <div class="nav-bar">
+                <button id="backBtn" class="back-button" style="display: none;">← Back</button>
+                <h1 id="navTitle" class="nav-title">Smart Home</h1>
+                <div class="nav-spacer"></div>
+            </div>
+        </header>
+
+        <!-- View Container with Stack Navigation -->
+        <main class="view-container" id="viewContainer">
+            <!-- Views are dynamically inserted here -->
+        </main>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+            <div class="spinner"></div>
+            <p id="loadingStatus">Loading...</p>
+        </div>
+
+        <!-- Error Dialog -->
+        <div id="errorDialog" class="error-dialog" style="display: none;">
+            <div class="error-content">
+                <h2>Error</h2>
+                <p id="errorMessage"></p>
+                <button id="errorDismiss" class="button-primary">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
