@@ -19,6 +19,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -61,6 +63,25 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
+	// ---- Zeroconf service announcement ----
+	var zeroconfSvc *discovery.ZeroconfService
+	var err error
+	// Extract port from listen address
+	listenParts := strings.Split(cfg.ListenAddr, ":")
+	port := 8080
+	if len(listenParts) > 1 {
+		if p, parseErr := strconv.Atoi(listenParts[1]); parseErr == nil {
+			port = p
+		}
+	}
+
+	zeroconfSvc, err = discovery.NewZeroconfService(port)
+	if err != nil {
+		log.Printf("zeroconf: failed to start service announcement: %v", err)
+		// Continue anyway - Zeroconf is optional
+		zeroconfSvc = nil
+	}
+
 	go func() {
 		log.Printf("http: listening on %s", cfg.ListenAddr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -73,6 +94,11 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-quit
 	log.Printf("received signal %s – shutting down", sig)
+
+	// Close Zeroconf service if it was started
+	if zeroconfSvc != nil {
+		zeroconfSvc.Close()
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()

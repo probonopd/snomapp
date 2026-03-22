@@ -25,6 +25,12 @@ Open a browser on your iPhone or Android device and navigate to:
 http://<server-ip>:8080/app/
 ```
 
+Or use the Zeroconf/mDNS name if available:
+```
+http://<hostname>.local:8080/app/
+```
+(E.g., `http://snomapp.local:8080/app/` if your server hostname is `snomapp`)
+
 The web app provides an iOS3-style stack-based navigation with:
 - Smooth right-to-left slide animations on navigation
 - Persistent navigation history (restored on page reload)
@@ -43,6 +49,28 @@ The web app provides an iOS3-style stack-based navigation with:
 | `MQTT_USER` | | MQTT username |
 | `MQTT_PASS` | | MQTT password |
 | `DISCOVERY_INTERVAL` | `30` | Seconds between mDNS scans |
+
+## Service Discovery (Zeroconf/mDNS)
+
+The application automatically advertises itself on the local network via Zeroconf/mDNS, making it discoverable without needing to know the server's IP address. The service is announced as:
+
+```
+<hostname>._http._tcp.local
+```
+
+This allows you to access the web app at:
+```
+http://<hostname>.local:8080/app/
+```
+
+For example, if your server is named `snomapp`:
+```
+http://snomapp.local:8080/app/
+```
+
+**Note:** Zeroconf/mDNS support requires:
+- Bonjour/Avahi installed and running (usually pre-installed on most Linux systems)
+- Network devices that support mDNS discovery (all modern iPhones, Android devices, and laptops)
 
 ## URL routes served to the phone
 
@@ -97,7 +125,8 @@ snomapp/
 │   └── tasmota.go       # Tasmota HTTP command client
 ├── discovery/
 │   ├── mdns.go          # mDNS-SD (Bonjour / Avahi) discovery
-│   └── mqtt.go          # MQTT-based discovery
+│   ├── mqtt.go          # MQTT-based discovery
+│   └── zeroconf.go      # Zeroconf/mDNS service announcement
 ├── minibrowser/
 │   ├── xml.go           # Snom XML types (SnomIPPhoneMenu, SnomIPPhoneText, …)
 │   ├── handlers.go      # HTTP handlers that render the XML pages
